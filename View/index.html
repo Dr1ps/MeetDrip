@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Message Board</title>
+    <link rel="stylesheet" href="../Style/styles.css">
+</head>
+<body>
+<header>
+    <h1>🦊 Meet Drip</h1>
+    <div class="story">
+        <p>🏝️ I used to play on a Minecraft server with my classmates. I had a base made of floating islands — a large one in the center, with smaller, less important ones surrounding it.</p>
+        <p>💧 The only way to reach them was a single stream of water that ran all the way down to the ground.<br>
+            🚶‍♂️ As you can imagine, it was hard to bring mobs up there, and I felt kind of lonely.<br>
+            🦊 I decided to bring up a companion — I found a fox holding an emerald and jokingly named him Drip.<br>
+            📤 I brought him up the water stream and started building a dedicated island just for him.</p>
+
+        <p>Sadly, the bridges connecting the islands weren’t very safe, and Drip fell off to his death.</p>
+
+        <p>🌼 The island I had built for him became a graveyard, with only his tombstone on it.<br>
+            💎 I placed his emerald on the grave, along with a book where everyone wrote a message to Drip.<br>
+            🌟 Drip had been the mascot of the server for its entire life — losing him was a big moment.</p>
+
+        <p>👤 To honor him, I took on his name, so he would never be forgotten.<br>
+            💬 I changed my Discord name to Drip, and it has stayed that way ever since.</p>
+
+        <p>🌈 Drip lives on, enjoying paradise.</p>
+
+        <p>Drip loves you and wants to be remembered.<br>
+        Send Drip a message of love, keep his soul alive.</p>
+    </div>
+    <p>Messages submitted from the community</p>
+</header>
+
+<!-- Filters -->
+<section class="filters">
+    <input type="text" id="usernameFilter" placeholder="Filter by username">
+    <input type="date" id="fromDate">
+    <input type="date" id="toDate">
+    <button id="applyFilters">Apply</button>
+    <button id="resetFilters" class="secondary">Reset</button>
+</section>
+
+<!-- Messages container -->
+<main id="messageList"></main>
+
+<footer>
+    <p>Powered by JSON + GitHub Pages</p>
+</footer>
+
+<script>
+    let messages = [];
+
+    async function loadMessages() {
+      try {
+        const response = await fetch('messages.json');
+        messages = await response.json();
+        renderMessages(messages);
+      } catch (err) {
+        document.getElementById('messageList').innerHTML =
+          "<p class='error'>Could not load messages.json</p>";
+      }
+    }
+
+    function renderMessages(list) {
+      const container = document.getElementById('messageList');
+      container.innerHTML = '';
+
+      if (list.length === 0) {
+        container.innerHTML = '<p class="empty">No messages found.</p>';
+        return;
+      }
+
+      // Sort newest first
+      list.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      list.forEach(msg => {
+        const card = document.createElement('article');
+        card.className = 'message';
+        card.innerHTML = `
+          <div class="message-header">
+            <h3>${msg.username}</h3>
+            <span class="date">${msg.date}</span>
+          </div>
+          <p>${msg.message}</p>
+          ${msg.image ? `<img src="${msg.image}" alt="Image from ${msg.username}">` : ''}
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function applyFilters() {
+      const user = document.getElementById('usernameFilter').value.toLowerCase();
+      const from = document.getElementById('fromDate').value;
+      const to = document.getElementById('toDate').value;
+
+      const filtered = messages.filter(m => {
+        const usernameMatch = !user || m.username.toLowerCase().includes(user);
+        const date = m.date;
+        const afterFrom = !from || date >= from;
+        const beforeTo = !to || date <= to;
+        return usernameMatch && afterFrom && beforeTo;
+      });
+
+      renderMessages(filtered);
+    }
+
+    document.getElementById('applyFilters').addEventListener('click', applyFilters);
+    document.getElementById('resetFilters').addEventListener('click', () => {
+      document.getElementById('usernameFilter').value = '';
+      document.getElementById('fromDate').value = '';
+      document.getElementById('toDate').value = '';
+      renderMessages(messages);
+    });
+
+    loadMessages();
+</script>
+</body>
+</html>
