@@ -135,3 +135,9 @@ footer {
 .story p {
   margin-bottom: 1rem;
 }
+
+body {
+      background: linear-gradient(to right, #f9f9f9, #e6f0ff);
+      height: 100vh;
+      margin: 0
+}
